@@ -1,0 +1,23 @@
+{
+  "name": "causalfunnel-user-analytics",
+  "version": "1.0.0",
+  "description": "Full Stack User Analytics Application for CausalFunnel",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\" \"npm run dev:demo\"",
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client",
+    "dev:demo": "npm run serve --prefix demo",
+    "build": "npm run build --prefix client",
+    "build:all": "npm run build --prefix client",
+    "start": "npm run start --prefix server",
+    "test": "npm test --prefix server",
+    "test:watch": "npm run test:watch --prefix server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
