@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PulseCommerce — Transparent Pricing Plans (Demo Page)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --accent: #06b6d4;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .telemetry-banner {
+      background: #1e1b4b;
+      color: #c7d2fe;
+      padding: 8px 16px;
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid #312e81;
+    }
+
+    .telemetry-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #3730a3;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      font-weight: 600;
+      color: #e0e7ff;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 800;
+      font-size: 20px;
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .nav-link {
+      text-decoration: none;
+      color: var(--text-muted);
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      color: var(--primary);
+    }
+
+    .hero {
+      padding: 60px 24px 30px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 38px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .hero p {
+      font-size: 16px;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .pricing-container {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      width: 100%;
+    }
+
+    .plan-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px 24px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      position: relative;
+    }
+
+    .plan-card.featured {
+      border: 2px solid var(--primary);
+      box-shadow: 0 20px 25px -5px rgba(79, 70, 229, 0.1);
+    }
+
+    .badge-pop {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--primary);
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 9999px;
+    }
+
+    .plan-name {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .plan-price {
+      font-size: 36px;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    .plan-price span {
+      font-size: 14px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .feature-list {
+      list-style: none;
+      margin: 24px 0;
+      flex-grow: 1;
+    }
+
+    .feature-list li {
+      padding: 8px 0;
+      font-size: 14px;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      text-align: center;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      font-size: 14px;
+      transition: all 0.15s;
+    }
+
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-secondary { background: #f1f5f9; color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: #e2e8f0; }
+
+    footer {
+      margin-top: auto;
+      border-top: 1px solid var(--border);
+      padding: 24px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 14px;
+      background: white;
+    }
+  </style>
+
+  <!-- Embed CausalFunnel Telemetry Tracker -->
+  <script 
+    src="./tracker.js" 
+    data-api-url="http://localhost:5001/api/events"
+    defer
+  ></script>
+</head>
+<body>
+  <div class="telemetry-banner">
+    <div>
+      <span class="telemetry-badge">
+        <span class="pulse-dot"></span>
+        CausalFunnel Telemetry Active
+      </span>
+      <span style="margin-left: 10px;">Tracking page view for Pricing Plans</span>
+    </div>
+    <div id="session-display">Session: Loading...</div>
+  </div>
+
+  <header>
+    <div class="nav-container">
+      <a href="index.html" class="brand" id="brand-link">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="m4.93 4.93 4.24 4.24"></path>
+          <path d="m14.83 9.17 4.24-4.24"></path>
+          <path d="m14.83 14.83 4.24 4.24"></path>
+          <path d="m9.17 14.83-4.24 4.24"></path>
+        </svg>
+        PulseCommerce
+      </a>
+      <nav class="nav-links">
+        <a href="index.html" class="nav-link" id="nav-home">Home</a>
+        <a href="pricing.html" class="nav-link active" id="nav-pricing">Pricing Plans</a>
+        <a href="http://localhost:5173" class="btn btn-secondary" target="_blank" style="padding: 8px 16px; width: auto; font-size: 13px;">
+          📊 Open Dashboard
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>Predictable Plans for Every Stage</h1>
+    <p>Select a plan to trigger button clicks and observe how session telemetry binds interactions across multiple pages.</p>
+  </section>
+
+  <div class="pricing-container">
+    <div class="plan-card" id="plan-starter">
+      <div class="plan-name">Starter</div>
+      <div class="plan-price">$29 <span>/month</span></div>
+      <p style="color: var(--text-muted); font-size: 14px;">Ideal for early stage stores validating product-market fit.</p>
+      <ul class="feature-list">
+        <li>✓ Up to 10,000 monthly events</li>
+        <li>✓ Basic Session Journey Replay</li>
+        <li>✓ 7-Day Click Heatmaps</li>
+      </ul>
+      <button class="btn btn-secondary" id="btn-select-starter">Select Starter</button>
+    </div>
+
+    <div class="plan-card featured" id="plan-growth">
+      <div class="badge-pop">Most Popular</div>
+      <div class="plan-name">Growth</div>
+      <div class="plan-price">$99 <span>/month</span></div>
+      <p style="color: var(--text-muted); font-size: 14px;">Scale your conversions with high-precision funnel telemetry.</p>
+      <ul class="feature-list">
+        <li>✓ Up to 100,000 monthly events</li>
+        <li>✓ Real-Time Heatmap Visualizer</li>
+        <li>✓ Priority API Ingestion</li>
+        <li>✓ Multi-Domain Tracking</li>
+      </ul>
+      <button class="btn btn-primary" id="btn-select-growth">Select Growth</button>
+    </div>
+
+    <div class="plan-card" id="plan-enterprise">
+      <div class="plan-name">Enterprise</div>
+      <div class="plan-price">$299 <span>/month</span></div>
+      <p style="color: var(--text-muted); font-size: 14px;">Tailored analytics infrastructure with dedicated support.</p>
+      <ul class="feature-list">
+        <li>✓ Unlimited monthly events</li>
+        <li>✓ Custom MongoDB cluster export</li>
+        <li>✓ SLA & 24/7 Support</li>
+      </ul>
+      <button class="btn btn-secondary" id="btn-select-enterprise">Contact Enterprise Sales</button>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2026 PulseCommerce Demo Site &bull; Powered by CausalFunnel Analytics Tracker</p>
+  </footer>
+
+  <script>
+    setTimeout(function() {
+      if (window.CausalTracker) {
+        document.getElementById('session-display').textContent = 'Session ID: ' + window.CausalTracker.getSessionId();
+      }
+    }, 300);
+  </script>
+</body>
+</html>
