@@ -239,6 +239,8 @@
         event_type: 'click',
         page_url: pageUrl,
         timestamp: new Date().toISOString(),
+        x: x,
+        y: y,
         coordinates: {
           x: x,
           y: y

@@ -69,18 +69,23 @@ export function validateEventPayload(req, res, next) {
   }
 
   // 5. click event coordinates validation
+  let coords = coordinates;
+  if (!coords && typeof req.body.x === 'number' && typeof req.body.y === 'number') {
+    coords = { x: req.body.x, y: req.body.y };
+  }
+
   if (event_type === 'click') {
-    if (!coordinates || typeof coordinates !== 'object') {
+    if (!coords || typeof coords !== 'object') {
       return res.status(400).json({
         success: false,
         error: {
-          message: 'Click events require a coordinates object with x and y values',
+          message: 'Click events require coordinates with valid x and y values',
           field: 'coordinates'
         }
       });
     }
 
-    const { x, y } = coordinates;
+    const { x, y } = coords;
     if (typeof x !== 'number' || !Number.isFinite(x) || x < 0) {
       return res.status(400).json({
         success: false,
@@ -129,7 +134,7 @@ export function validateEventPayload(req, res, next) {
     event_type,
     page_url: page_url.trim(),
     timestamp: parsedTimestamp,
-    coordinates: event_type === 'click' ? { x: Math.round(coordinates.x), y: Math.round(coordinates.y) } : undefined,
+    coordinates: event_type === 'click' && coords ? { x: Math.round(coords.x), y: Math.round(coords.y) } : undefined,
     viewport: viewport ? { width: Math.round(viewport.width), height: Math.round(viewport.height) } : undefined
   };
 

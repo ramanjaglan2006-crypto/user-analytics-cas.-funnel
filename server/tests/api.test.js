@@ -65,6 +65,26 @@ describe('User Analytics API Integration Tests', () => {
       expect(res.body.data.coordinates).toEqual({ x: 250, y: 340 });
     });
 
+    it('should successfully ingest a click event with flat x and y properties', async () => {
+      const payload = {
+        session_id: 'session_flat_xy',
+        event_type: 'click',
+        page_url: 'http://localhost:5173/products',
+        timestamp: new Date().toISOString(),
+        x: 420,
+        y: 250
+      };
+
+      const res = await request(app)
+        .post('/api/events')
+        .send(payload)
+        .set('Content-Type', 'application/json');
+
+      expect(res.status).toBe(201);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.coordinates).toEqual({ x: 420, y: 250 });
+    });
+
     it('should reject an event with missing session_id (400)', async () => {
       const res = await request(app)
         .post('/api/events')
