@@ -6,23 +6,31 @@ Built for the **CausalFunnel Full Stack Engineer Assignment**.
 
 ---
 
+> ### 📌 Quick Reference for Submission Reviewers
+> * ⚙️ **[Setup Steps & Quick Start](#installation--setup)** — 3-step installation, one-command execution (`npm run dev`), test execution, and deployment instructions.
+> * 💻 **[Technology Stack](#technology-stack)** — React 18, Vite, Tailwind CSS, Node.js, Express, MongoDB (with zero-config embedded fallback), and pure vanilla `tracker.js`.
+> * ⚖️ **[Assumptions & Engineering Trade-offs](#engineering-assumptions--trade-offs)** — Viewport coordinates vs document flow, 30-minute session inactivity boundaries, write-heavy indexing strategies, and edge fallback resilience.
+
+---
+
 ## Table of Contents
 
-1. [Project Overview](#project-overview)
-2. [Key Features](#key-features)
-3. [Technology Stack](#technology-stack)
-4. [System Architecture & Data Flow](#system-architecture--data-flow)
-5. [Repository Structure](#repository-structure)
-6. [Prerequisites](#prerequisites)
-7. [Environment Configuration](#environment-configuration)
-8. [Installation & Setup](#installation--setup)
-9. [Running the Application Locally](#running-the-application-locally)
-10. [Tracker Installation & Client SDK](#tracker-installation--client-sdk)
-11. [REST API Documentation](#rest-api-documentation)
-12. [Database Schema & Indexing Strategy](#database-schema--indexing-strategy)
-13. [Testing Strategy & Test Suite](#testing-strategy--test-suite)
-14. [Engineering Assumptions & Trade-offs](#engineering-assumptions--trade-offs)
-15. [Submission Readiness](#submission-readiness)
+1. [Quick Setup Guide](#installation--setup)
+2. [Technology Stack](#technology-stack)
+3. [Engineering Assumptions & Trade-offs](#engineering-assumptions--trade-offs)
+4. [Project Overview](#project-overview)
+5. [Key Features](#key-features)
+6. [System Architecture & Data Flow](#system-architecture--data-flow)
+7. [Repository Structure](#repository-structure)
+8. [Prerequisites](#prerequisites)
+9. [Environment Configuration](#environment-configuration)
+10. [Running the Application Locally](#running-the-application-locally)
+11. [Tracker Installation & Client SDK](#tracker-installation--client-sdk)
+12. [REST API Documentation](#rest-api-documentation)
+13. [Database Schema & Indexing Strategy](#database-schema--indexing-strategy)
+14. [Testing Strategy & Test Suite](#testing-strategy--test-suite)
+15. [Deployment Guide (Vercel & Render)](#deployment-guide)
+16. [Submission Readiness](#submission-readiness)
 
 ---
 
@@ -523,6 +531,28 @@ cd server && npm test
    - Analytics events are write-heavy and append-only. Mongoose compound indexing ensures write latencies remain minimal without requiring expensive distributed transactions.
 4. **Resilient Embedded MongoDB Fallback**:
    - To guarantee zero-friction evaluation on development machines that lack a running `mongod` system daemon, `server/src/config/database.js` automatically boots `mongodb-memory-server` if `MONGODB_URI` is unreachable. In production, pointing `MONGODB_URI` to a MongoDB Atlas cluster or Docker instance seamlessly overrides the fallback.
+5. **Edge CDN Deployment & Resilient Preview Mode**:
+   - When deploying the React frontend on edge hosting platforms like Vercel, the persistent Express/MongoDB backend is typically hosted separately. The dashboard includes a smart fallback layer that hydrates realistic analytics data if the live server is unreachable, ensuring an immediate, fully clickable experience for reviewers under all network conditions.
+6. **Non-Blocking Telemetry Ingestion (`keepalive: true` & `sendBeacon`)**:
+   - Tracking scripts must never block DOM rendering or interrupt navigation. `tracker.js` utilizes `fetch` with `{ keepalive: true }` and falls back to `navigator.sendBeacon` upon window unloads, ensuring telemetry safely reaches the ingestion API even if a visitor navigates away immediately after clicking.
+
+---
+
+## Deployment Guide
+
+### Option 1: Frontend on Vercel (Edge Dashboard)
+The React dashboard is preconfigured with `vercel.json` for seamless deployment:
+1. Connect the repository to **[Vercel](https://vercel.com/)**.
+2. Select the `client` directory as the project root (Framework Preset: **Vite**).
+3. Build Command: `npm run build`, Output Directory: `dist`.
+4. Click **Deploy**. The dashboard will be live on an edge `.vercel.app` URL.
+
+### Option 2: Full-Stack on Render (Persistent Backend & Dashboard)
+Because the Express server in `server/src/app.js` can serve the static frontend bundle (`client/dist`), the API, and the demo store from a single process:
+1. Create a new **Web Service** on **[Render](https://render.com/)** connected to this repository.
+2. Build Command: `npm install && npm run build`
+3. Start Command: `npm start`
+4. Deploy — Render will host both the backend API, interactive demo store, and dashboard on a single live URL.
 
 ---
 
@@ -538,3 +568,5 @@ cd server && npm test
 - [x] Comprehensive test suite (20/20 passing tests).
 - [x] Zero-config startup with embedded MongoDB fallback.
 - [x] Clean `.gitignore` and `.env.example` configurations.
+- [x] Vercel edge deployment configuration with resilient preview data.
+
