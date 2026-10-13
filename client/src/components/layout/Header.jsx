@@ -4,31 +4,19 @@ import {
   BarChart3, 
   Flame, 
   Layers, 
-  ExternalLink, 
-  RefreshCw, 
-  CheckCircle2, 
-  AlertCircle,
-  ShoppingBag,
-  FileCheck2
+  RefreshCw 
 } from 'lucide-react';
 
 export default function Header({ 
   currentTab, 
   setCurrentTab, 
-  backendHealth, 
   onRefresh, 
-  isRefreshing,
-  lastUpdated 
+  isRefreshing 
 }) {
-  const demoUrl = import.meta.env.VITE_DEMO_URL || 'http://localhost:8080';
-
   const navItems = [
     { id: 'overview', label: 'Overview', icon: BarChart3 },
     { id: 'sessions', label: 'Sessions', icon: Layers },
     { id: 'heatmap', label: 'Heatmap', icon: Flame },
-    { id: 'sandbox', label: 'Store Sandbox', icon: ShoppingBag },
-    { id: 'submission', label: 'Submission Hub', icon: FileCheck2 },
-    { id: 'demo', label: 'External Demo', icon: ExternalLink, isExternal: true },
   ];
 
   return (
@@ -62,29 +50,13 @@ export default function Header({
               const Icon = item.icon;
               const isActive = currentTab === item.id;
 
-              if (item.isExternal) {
-                return (
-                  <a
-                    key={item.id}
-                    href={demoUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition-colors border border-indigo-200/80"
-                    title="Open the tracked demo website in a new tab"
-                  >
-                    <Icon className="w-4 h-4" />
-                    <span className="hidden md:inline">{item.label}</span>
-                  </a>
-                );
-              }
-
               return (
                 <button
                   key={item.id}
                   onClick={() => setCurrentTab(item.id)}
-                  className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-all ${
+                  className={`flex items-center gap-2 px-3.5 py-2 text-sm font-medium rounded-lg transition-all ${
                     isActive
-                      ? 'bg-indigo-600 text-white shadow-sm'
+                      ? 'bg-indigo-600 text-white shadow-xs font-semibold'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                   }`}
                 >
@@ -95,51 +67,16 @@ export default function Header({
             })}
           </nav>
 
-          {/* Actions & Health Status */}
-          <div className="flex items-center gap-3">
-            {/* Backend health status badge */}
-            <div 
-              className={`hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${
-                backendHealth?.status === 'healthy'
-                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                  : backendHealth?.status === 'demo-mode'
-                  ? 'bg-sky-50 text-sky-700 border-sky-200'
-                  : 'bg-amber-50 text-amber-700 border-amber-200'
-              }`}
-              title={
-                backendHealth?.status === 'healthy' 
-                  ? 'Backend & MongoDB Connected' 
-                  : backendHealth?.status === 'demo-mode' 
-                  ? 'Interactive Edge Preview Mode' 
-                  : 'Backend Disconnected'
-              }
-            >
-              {backendHealth?.status === 'healthy' ? (
-                <>
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span>API Live</span>
-                </>
-              ) : backendHealth?.status === 'demo-mode' ? (
-                <>
-                  <span className="w-2 h-2 rounded-full bg-sky-500 animate-pulse"></span>
-                  <span>Interactive Preview</span>
-                </>
-              ) : (
-                <>
-                  <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
-                  <span>API Connecting</span>
-                </>
-              )}
-            </div>
-
-            {/* Refresh Button */}
+          {/* Refresh Action */}
+          <div className="flex items-center gap-2">
             <button
               onClick={onRefresh}
               disabled={isRefreshing}
-              className="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors relative"
-              title="Refresh Analytics Data"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors"
+              title="Refresh Data"
             >
-              <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-indigo-600' : ''}`} />
+              <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-indigo-600' : ''}`} />
+              <span className="hidden sm:inline">Refresh</span>
             </button>
           </div>
 

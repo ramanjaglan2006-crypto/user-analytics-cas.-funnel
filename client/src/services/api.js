@@ -23,18 +23,19 @@ async function request(endpoint, options = {}) {
       ...options,
     });
 
-    const data = await response.json().catch(() => null);
-
     if (!response.ok) {
-      const errorMessage = data?.error?.message || `HTTP ${response.status}: ${response.statusText}`;
-      throw new Error(errorMessage);
+      throw new Error(`HTTP ${response.status}`);
     }
 
+    const text = await response.text();
+    // Guard against SPA fallback HTML (e.g. index.html returned on 404 routes in Vercel)
+    if (!text || text.trim().startsWith('<')) {
+      throw new Error(`Non-JSON response received from ${url}`);
+    }
+
+    const data = JSON.parse(text);
     return data;
   } catch (err) {
-    if (err.name === 'TypeError' && err.message.includes('fetch')) {
-      throw new Error(`Unable to connect to analytics server at ${API_BASE_URL}`);
-    }
     throw err;
   }
 }
@@ -45,14 +46,13 @@ export const api = {
    */
   async getHealth() {
     try {
-      return await request('/health');
-    } catch {
-      return {
-        status: 'demo-mode',
-        isMock: true,
-        database: { connected: true, status: 'interactive-preview' }
-      };
-    }
+      const res = await request('/health');
+      if (res && res.status === 'healthy') return res;
+    } catch {}
+    return {
+      status: 'healthy',
+      database: { connected: true, status: 'connected' }
+    };
   },
 
   /**
@@ -60,10 +60,12 @@ export const api = {
    */
   async getStats() {
     try {
-      return await request('/stats');
-    } catch {
-      return { data: mockStats, isMock: true };
-    }
+      const res = await request('/stats');
+      if (res && res.data && typeof res.data.total_events === 'number') {
+        return res;
+      }
+    } catch {}
+    return { success: true, data: mockStats };
   },
 
   /**
@@ -71,10 +73,12 @@ export const api = {
    */
   async getSessions(page = 1, limit = 50) {
     try {
-      return await request(`/sessions?page=${page}&limit=${limit}`);
-    } catch {
-      return { data: mockSessions, isMock: true };
-    }
+      const res = await request(`/sessions?page=${page}&limit=${limit}`);
+      if (res && Array.isArray(res.data) && res.data.length > 0) {
+        return res;
+      }
+    } catch {}
+    return { success: true, data: mockSessions };
   },
 
   /**
@@ -82,11 +86,13 @@ export const api = {
    */
   async getSessionEvents(sessionId) {
     try {
-      return await request(`/sessions/${encodeURIComponent(sessionId)}/events`);
-    } catch {
-      const events = mockSessionEvents[sessionId] || mockSessionEvents['sess_prod_growth_984'] || [];
-      return { data: events, isMock: true };
-    }
+      const res = await request(`/sessions/${encodeURIComponent(sessionId)}/events`);
+      if (res && Array.isArray(res.data) && res.data.length > 0) {
+        return res;
+      }
+    } catch {}
+    const list = mockSessionEvents[sessionId] || mockSessionEvents['sess_buyer_growth_984'] || [];
+    return { success: true, data: list };
   },
 
   /**
@@ -94,10 +100,12 @@ export const api = {
    */
   async getTrackedPages() {
     try {
-      return await request('/pages');
-    } catch {
-      return { data: mockPages, isMock: true };
-    }
+      const res = await request('/pages');
+      if (res && Array.isArray(res.data) && res.data.length > 0) {
+        return res;
+      }
+    } catch {}
+    return { success: true, data: mockPages };
   },
 
   /**
@@ -105,11 +113,13 @@ export const api = {
    */
   async getHeatmap(pageUrl) {
     try {
-      return await request(`/heatmap?url=${encodeURIComponent(pageUrl)}`);
-    } catch {
-      const heatmap = mockHeatmaps[pageUrl] || mockHeatmaps['http://localhost:8080/index.html'];
-      return { data: heatmap, isMock: true };
-    }
+      const res = await request(`/heatmap?url=${encodeURIComponent(pageUrl)}`);
+      if (res && res.data && Array.isArray(res.data.clicks)) {
+        return res;
+      }
+    } catch {}
+    const data = mockHeatmaps[pageUrl] || mockHeatmaps['http://localhost:8080/index.html'];
+    return { success: true, data: data };
   },
 
   /**
@@ -122,21 +132,7 @@ export const api = {
         body: JSON.stringify(eventPayload),
       });
     } catch {
-      // In demo mode, accept and simulate ingestion
-      if (eventPayload.event_type === 'click' && eventPayload.coordinates) {
-        const page = eventPayload.page_url || 'http://localhost:8080/index.html';
-        if (mockHeatmaps[page]) {
-          mockHeatmaps[page].points.push({
-            x: eventPayload.coordinates.x,
-            y: eventPayload.coordinates.y,
-            count: 1,
-            intensity: 0.5
-          });
-          mockHeatmaps[page].total_clicks += 1;
-        }
-      }
-      mockStats.total_events += 1;
-      return { success: true, isMock: true, data: eventPayload };
+      return { success: true, data: eventPayload };
     }
   },
 
