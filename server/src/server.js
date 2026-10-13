@@ -3,12 +3,14 @@ dotenv.config();
 
 import app from './app.js';
 import { connectDB, disconnectDB } from './config/database.js';
+import { seedInitialEventsIfEmpty } from './scripts/seed.js';
 
 const PORT = process.env.PORT || 5001;
 
 async function bootstrap() {
   try {
     await connectDB();
+    await seedInitialEventsIfEmpty();
 
     const server = app.listen(PORT, () => {
       console.log(`=========================================`);

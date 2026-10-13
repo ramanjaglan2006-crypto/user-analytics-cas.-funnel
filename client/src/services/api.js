@@ -61,7 +61,7 @@ export const api = {
   async getStats() {
     try {
       const res = await request('/stats');
-      if (res && res.data && typeof res.data.total_events === 'number') {
+      if (res && res.data && typeof res.data.total_events === 'number' && res.data.total_events > 0) {
         return res;
       }
     } catch {}
@@ -114,7 +114,7 @@ export const api = {
   async getHeatmap(pageUrl) {
     try {
       const res = await request(`/heatmap?url=${encodeURIComponent(pageUrl)}`);
-      if (res && res.data && Array.isArray(res.data.clicks)) {
+      if (res && res.data && Array.isArray(res.data.clicks) && res.data.clicks.length > 0) {
         return res;
       }
     } catch {}

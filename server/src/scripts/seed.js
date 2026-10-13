@@ -10,13 +10,7 @@ const DEMO_PAGES = [
   'http://localhost:8080/pricing.html'
 ];
 
-async function seed() {
-  console.log('[Seed] Connecting to database...');
-  await connectDB();
-
-  console.log('[Seed] Clearing existing demo events...');
-  await Event.deleteMany({});
-
+export function getSampleEvents() {
   const sampleEvents = [];
   const baseTime = Date.now() - 3600000; // 1 hour ago
 
@@ -104,7 +98,6 @@ async function seed() {
     timestamp: new Date(baseTime + 600000),
     viewport: { width: 1440, height: 900 }
   });
-  // Multiple overlapping clicks on the Hero Trial button to demonstrate heatmap density
   for (let i = 0; i < 6; i++) {
     sampleEvents.push({
       session_id: s3,
@@ -137,13 +130,39 @@ async function seed() {
     viewport: { width: 390, height: 844 }
   });
 
-  await Event.insertMany(sampleEvents);
-  console.log(`[Seed] Successfully inserted ${sampleEvents.length} realistic events across 4 sessions!`);
+  return sampleEvents;
+}
+
+export async function seedInitialEventsIfEmpty() {
+  try {
+    const count = await Event.countDocuments();
+    if (count === 0) {
+      console.log('[Server] Database is empty. Seeding initial demo sessions & heatmap events...');
+      const events = getSampleEvents();
+      await Event.insertMany(events);
+      console.log(`[Server] Seeded ${events.length} initial events successfully.`);
+    }
+  } catch (err) {
+    console.warn('[Server] Could not auto-seed initial events:', err.message);
+  }
+}
+
+async function standaloneSeed() {
+  console.log('[Seed] Connecting to database...');
+  await connectDB();
+  console.log('[Seed] Clearing existing demo events...');
+  await Event.deleteMany({});
+  const events = getSampleEvents();
+  await Event.insertMany(events);
+  console.log(`[Seed] Successfully inserted ${events.length} realistic events!`);
   await disconnectDB();
   process.exit(0);
 }
 
-seed().catch((err) => {
-  console.error('[Seed] Error seeding database:', err);
-  process.exit(1);
-});
+// Only run automatically if executed directly as a script
+if (process.argv[1] && process.argv[1].endsWith('seed.js')) {
+  standaloneSeed().catch((err) => {
+    console.error('[Seed] Error seeding database:', err);
+    process.exit(1);
+  });
+}
