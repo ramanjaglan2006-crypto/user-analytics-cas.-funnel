@@ -102,19 +102,32 @@ export default function Header({
               className={`hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${
                 backendHealth?.status === 'healthy'
                   ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                  : 'bg-rose-50 text-rose-700 border-rose-200'
+                  : backendHealth?.status === 'demo-mode'
+                  ? 'bg-sky-50 text-sky-700 border-sky-200'
+                  : 'bg-amber-50 text-amber-700 border-amber-200'
               }`}
-              title={backendHealth?.status === 'healthy' ? 'Backend & MongoDB Connected' : 'Backend Disconnected'}
+              title={
+                backendHealth?.status === 'healthy' 
+                  ? 'Backend & MongoDB Connected' 
+                  : backendHealth?.status === 'demo-mode' 
+                  ? 'Interactive Edge Preview Mode' 
+                  : 'Backend Disconnected'
+              }
             >
               {backendHealth?.status === 'healthy' ? (
                 <>
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                   <span>API Live</span>
                 </>
+              ) : backendHealth?.status === 'demo-mode' ? (
+                <>
+                  <span className="w-2 h-2 rounded-full bg-sky-500 animate-pulse"></span>
+                  <span>Interactive Preview</span>
+                </>
               ) : (
                 <>
-                  <AlertCircle className="w-3.5 h-3.5 text-rose-500" />
-                  <span>API Offline</span>
+                  <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
+                  <span>API Connecting</span>
                 </>
               )}
             </div>

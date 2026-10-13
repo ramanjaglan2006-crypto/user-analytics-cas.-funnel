@@ -1,4 +1,12 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+import { 
+  mockStats, 
+  mockPages, 
+  mockSessions, 
+  mockSessionEvents, 
+  mockHeatmaps 
+} from './mockData.js';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 /**
  * Custom API request helper with normalized error messaging
@@ -25,7 +33,7 @@ async function request(endpoint, options = {}) {
     return data;
   } catch (err) {
     if (err.name === 'TypeError' && err.message.includes('fetch')) {
-      throw new Error(`Unable to connect to analytics server at ${API_BASE_URL}. Ensure the backend is running.`);
+      throw new Error(`Unable to connect to analytics server at ${API_BASE_URL}`);
     }
     throw err;
   }
@@ -36,52 +44,100 @@ export const api = {
    * Health status of API and MongoDB
    */
   async getHealth() {
-    return request('/health');
+    try {
+      return await request('/health');
+    } catch {
+      return {
+        status: 'demo-mode',
+        isMock: true,
+        database: { connected: true, status: 'interactive-preview' }
+      };
+    }
   },
 
   /**
    * High-level overview metrics
    */
   async getStats() {
-    return request('/stats');
+    try {
+      return await request('/stats');
+    } catch {
+      return { data: mockStats, isMock: true };
+    }
   },
 
   /**
    * List all user sessions with activity aggregates
    */
   async getSessions(page = 1, limit = 50) {
-    return request(`/sessions?page=${page}&limit=${limit}`);
+    try {
+      return await request(`/sessions?page=${page}&limit=${limit}`);
+    } catch {
+      return { data: mockSessions, isMock: true };
+    }
   },
 
   /**
    * Get ordered chronological event timeline for a session
    */
   async getSessionEvents(sessionId) {
-    return request(`/sessions/${encodeURIComponent(sessionId)}/events`);
+    try {
+      return await request(`/sessions/${encodeURIComponent(sessionId)}/events`);
+    } catch {
+      const events = mockSessionEvents[sessionId] || mockSessionEvents['sess_prod_growth_984'] || [];
+      return { data: events, isMock: true };
+    }
   },
 
   /**
    * List all distinct tracked pages
    */
   async getTrackedPages() {
-    return request('/pages');
+    try {
+      return await request('/pages');
+    } catch {
+      return { data: mockPages, isMock: true };
+    }
   },
 
   /**
    * Get click coordinates for heatmap visualization
    */
   async getHeatmap(pageUrl) {
-    return request(`/heatmap?url=${encodeURIComponent(pageUrl)}`);
+    try {
+      return await request(`/heatmap?url=${encodeURIComponent(pageUrl)}`);
+    } catch {
+      const heatmap = mockHeatmaps[pageUrl] || mockHeatmaps['http://localhost:8080/index.html'];
+      return { data: heatmap, isMock: true };
+    }
   },
 
   /**
    * Ingest a custom tracking event
    */
   async createEvent(eventPayload) {
-    return request('/events', {
-      method: 'POST',
-      body: JSON.stringify(eventPayload),
-    });
+    try {
+      return await request('/events', {
+        method: 'POST',
+        body: JSON.stringify(eventPayload),
+      });
+    } catch {
+      // In demo mode, accept and simulate ingestion
+      if (eventPayload.event_type === 'click' && eventPayload.coordinates) {
+        const page = eventPayload.page_url || 'http://localhost:8080/index.html';
+        if (mockHeatmaps[page]) {
+          mockHeatmaps[page].points.push({
+            x: eventPayload.coordinates.x,
+            y: eventPayload.coordinates.y,
+            count: 1,
+            intensity: 0.5
+          });
+          mockHeatmaps[page].total_clicks += 1;
+        }
+      }
+      mockStats.total_events += 1;
+      return { success: true, isMock: true, data: eventPayload };
+    }
   },
 
   async trackEvent(eventPayload) {
